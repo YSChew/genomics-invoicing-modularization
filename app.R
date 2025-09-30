@@ -5,6 +5,7 @@ library(DT)
 library(shinyjs)
 library(dplyr)
 library(stringr)
+library(kableExtra)
 
 source("pages/invoice.R")  # must define invoicePage() and generateInvoiceTable()
 
@@ -257,6 +258,7 @@ server <- function(input, output, session) {
       selection = "multiple"
     )
   })
+
   
   # invoice with cleaning
   invoice_table <- reactive({
@@ -288,9 +290,46 @@ server <- function(input, output, session) {
     output$editable_invoice_table <- DT::renderDataTable({
       new_table
     })
+    
+    
+    output$download_invoice <- downloadHandler(
+      filename = function() {
+        paste0("Invoice_", Sys.Date(), ".pdf")
+      },
+      content = function(file) {
+        # Save a temporary Rmd file
+        tempReport <- file.path(tempdir(), "invoice.Rmd")
+        file.copy("invoice.Rmd", tempReport, overwrite = TRUE)
+        
+        pdf_table_data <- new_table
+        
+        # Parameters to pass into Rmd
+        params <- list(
+          date = Sys.Date(),
+          quote_id = input$quote_id,
+          project_id = input$project_id,
+          project_title = input$project_title,
+          project_type = input$project_type,
+          platform = input$platform,
+          table_data = pdf_table_data
+        )
+        
+        # Use tempdir() to save in the default system temp directory
+        output_path <- file.path(tempdir(), paste0("Invoice_", Sys.Date(), ".pdf"))
+        
+        rmarkdown::render(
+          tempReport,
+          output_file = output_path,
+          params = params,
+          envir = new.env(parent = globalenv())
+        )
+        
+        # Move the generated file to the 'file' parameter (Shiny will then serve it to the user)
+        file.copy(output_path, file)
+      }
+    )
   })
 
-  
   generateQuoteID <- function() {
     date_part <- format(Sys.Date(), "%Y%m%d")
     random_part <- sprintf("%04d", sample(0:9999, 1))
