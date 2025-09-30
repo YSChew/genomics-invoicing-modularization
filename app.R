@@ -276,7 +276,7 @@ server <- function(input, output, session) {
                         Quantity=numeric(0), Amount=numeric(0), Total=numeric(0)))
     }
     tryCatch(
-      generateInvoiceTable(dat2),
+      new_table <- generateInvoiceTable(dat2),
       error = function(e) {
         showNotification(paste("Failed to build invoice table:", e$message),
                          type = "error", duration = NULL)
@@ -284,7 +284,12 @@ server <- function(input, output, session) {
                    Quantity=numeric(0), Amount=numeric(0), Total=numeric(0))
       }
     )
+    
+    output$editable_invoice_table <- DT::renderDataTable({
+      new_table
+    })
   })
+
   
   generateQuoteID <- function() {
     date_part <- format(Sys.Date(), "%Y%m%d")
