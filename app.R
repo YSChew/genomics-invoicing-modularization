@@ -7,7 +7,7 @@ library(dplyr)
 library(stringr)
 library(kableExtra)
 
-source("pages/invoice.R")  # must define invoicePage() and generateInvoiceTable()
+source("src/ui/invoice.R")  # must define invoicePage() and generateInvoiceTable()
 
 # --- helpers ---
 norm_names <- function(df) {
