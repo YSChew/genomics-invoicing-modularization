@@ -8,59 +8,7 @@ library(stringr)
 library(kableExtra)
 
 source("src/ui/invoice.R")  # must define invoicePage() and generateInvoiceTable()
-
-# --- helpers ---
-norm_names <- function(df) {
-  names(df) <- names(df) |>
-    tolower() |>
-    gsub("\\s+", "_", x = _, perl = TRUE)
-  df
-}
-
-guess_type <- function(df) {
-  ndf <- norm_names(df)
-  cat_col <- c("product_category","category","type")
-  cat_col <- cat_col[cat_col %in% names(ndf)]
-  txt <- if (length(cat_col)) tolower(ndf[[cat_col[1]]]) else ""
-  if (!length(cat_col)) {
-    name_col <- c("product_name","name","brand","description")
-    name_col <- name_col[name_col %in% names(ndf)]
-    txt <- if (length(name_col)) tolower(ndf[[name_col[1]]]) else ""
-  }
-  is_processing <- str_detect(txt, paste(c(
-    "process","service","analysis","sequenc","library prep","bioinform","alignment"
-  ), collapse="|"))
-  is_physical <- str_detect(txt, paste(c(
-    "kit","chip","reagent","tube","plate","index","bead","enzyme","antibody"
-  ), collapse="|"))
-  tibble(
-    is_item = !is.na(txt) & nzchar(txt),
-    is_physical = is_item & is_physical & !is_processing,
-    is_processing = is_item & is_processing
-  )
-}
-
-# numeric cleaner
-to_num <- function(x) {
-  if (is.list(x)) x <- vapply(x, function(y) if (length(y)) y[[1]] else NA_character_, character(1))
-  x <- as.character(x)
-  x <- gsub(",", "", x)
-  x <- gsub("%", "", x)
-  x <- gsub("\\$", "", x)
-  suppressWarnings(as.numeric(x))
-}
-
-clean_invoice_cols <- function(df) {
-  need <- c("per reaction cost", "%PRJ surcharge", "%EXTERNAL surcharge",
-            "Additional reagent Cost (not incl. in kit)")
-  for (nm in need) if (!nm %in% names(df)) df[[nm]] <- 0
-  df[["per reaction cost"]] <- to_num(df[["per reaction cost"]])
-  df[["%PRJ surcharge"]] <- to_num(df[["%PRJ surcharge"]])
-  df[["%EXTERNAL surcharge"]] <- to_num(df[["%EXTERNAL surcharge"]])
-  df[["Additional reagent Cost (not incl. in kit)"]] <- to_num(df[["Additional reagent Cost (not incl. in kit)"]])
-  for (nm in need) df[[nm]][is.na(df[[nm]])] <- 0
-  df
-}
+source("src/server-logic.R")
 
 ui <- fluidPage(
   tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "style.css")),
@@ -78,14 +26,6 @@ server <- function(input, output, session) {
   meta_info <- reactiveVal(list(date = as.character(Sys.Date()), version = "N/A"))
   invoice_items_data <- reactiveVal(NULL)
   edited_invoice_table <- reactiveVal(NULL)
-  
-  parse_data <- function(df) {
-    target_col <- "Additional reagent Cost (not incl. in kit)"
-    if (target_col %in% names(df)) {
-      df[[target_col]][is.na(df[[target_col]])] <- 0
-    }
-    df
-  }
   
   # upload
   observeEvent(input$file, {
@@ -303,7 +243,7 @@ server <- function(input, output, session) {
         
         pdf_table_data <- new_table
         
-        # Parameters to pass into Rmd
+        # Parameters to pass into Rmd 
         params <- list(
           date = Sys.Date(),
           quote_id = input$quote_id,
@@ -329,12 +269,6 @@ server <- function(input, output, session) {
       }
     )
   })
-
-  generateQuoteID <- function() {
-    date_part <- format(Sys.Date(), "%Y%m%d")
-    random_part <- sprintf("%04d", sample(0:9999, 1))
-    paste0("WEHI-AGF-", date_part, "-", random_part)
-  }
 }
 
 shinyApp(ui = ui, server = server)
