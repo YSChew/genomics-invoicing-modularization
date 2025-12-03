@@ -53,22 +53,3 @@ invoicePage <- function(quote_id, project_id, project_title, project_type, platf
     )
   )
 }
-
-generateInvoiceTable <- function(invoice_items_data) {
-  req(invoice_items_data)
-  
-  items <- invoice_items_data
-  
-  items$Quantity <- 1
-
-  
-  items$Amount <- as.numeric(items$`%PRJ surcharge`)
-  items$Total <- items$Quantity * items$Amount
-  items$Description <- paste(items$Brand, items$`Product Category`, sep = " - ")
-  
-  formatted <- items[, c("Product Name", "Description", "Quantity", "Amount", "Total")]
-  colnames(formatted) <- c("Item", "Description", "Quantity", "Amount", "Total")
-  
-  return(formatted)
-}
-
