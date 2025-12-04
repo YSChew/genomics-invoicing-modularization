@@ -6,7 +6,6 @@ library(dplyr)
 library(stringr)
 library(kableExtra)
 
-source("src/ui/invoice.R")  # must define invoicePage() and generateInvoiceTable()
 source("src/server-logic.R")
 source("src/ui-logic.R")
 
@@ -24,6 +23,7 @@ server <- function(input, output, session) {
   file_path <- reactiveVal(NULL)
   invoice_items_data <- reactiveVal(NULL) # Items selected to be added to invoice
   
+  # Function that converts raw_master_spreadsheet to processed_master_spreadsheet
   process_data(input, output, session, file_path, raw_master_spreadsheet_data, 
                processed_master_spreadsheet_data, invoice_items_data)
   
