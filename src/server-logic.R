@@ -66,6 +66,7 @@ server_driver <- function(input, output, session, file_path,
     
     output$download_invoice <- downloadHandler(
       filename = function() { paste0("Invoice_", Sys.Date(), ".pdf") },
-      content <- generate_report(input, file, new_table))
+      content = function(file) { generate_report(input, file, new_table) }
+    )
   })
 }
