@@ -10,12 +10,11 @@ parse_data <- function(df) {
 }
 
 #rv stands for reactiveVal
-convert_spreadsheet_to_df <- function(filepath, raw_data_rv, processed_data_rv, meta_info) {
+convert_spreadsheet_to_df <- function(filepath, raw_data_rv, processed_data_rv) {
   if (!is.null(filepath)) {
     df <- read_excel(filepath)
     raw_data_rv(df)
     processed_data_rv(parse_data(df))
-    meta_info(list(date = as.character(Sys.Date()), version = "N/A"))
   } else {
     showNotification("Please upload a file first.", type = "warning")
   }

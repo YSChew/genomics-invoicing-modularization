@@ -59,10 +59,12 @@ select_rows <- function(input, output, session, filtered_data) {
   }
 }
 
-generate_master_summary_df <- function(processed_data, meta_info) {
+generate_master_summary_df <- function(processed_data) {
   req(processed_data())
   df <- processed_data()
+  meta_info <- reactiveVal(list(date = as.character(Sys.Date()), version = "N/A"))
   flags <- guess_type(df)
+  
   return(data.frame(
     Date = meta_info()$date,
     Version = meta_info()$version,
