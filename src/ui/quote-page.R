@@ -1,10 +1,10 @@
-source("src/ui/invoice.R")
+source("src/ui/quote.R")
 
-render_invoice_page <- function() {
+render_quote_page <- function() {
   tryCatch({
     tagList(
       actionButton("back_to_main", "Back", class = "back-button"),
-      invoicePage(
+      quotePage(
         quote_id = generateQuoteID(),
         project_id = "C0000001",
         project_title = "None",

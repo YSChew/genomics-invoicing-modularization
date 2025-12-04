@@ -19,18 +19,20 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   # Main variables
   current_page <- reactiveVal("main")
-  raw_data <- reactiveVal(NULL)
-  processed_data <- reactiveVal(NULL)
+  raw_master_spreadsheet_data <- reactiveVal(NULL)
+  processed_master_spreadsheet_data <- reactiveVal(NULL)
   file_path <- reactiveVal(NULL)
-  invoice_items_data <- reactiveVal(NULL)
+  invoice_items_data <- reactiveVal(NULL) # Items selected to be added to invoice
   
-  process_data(input, output, session, file_path, raw_data, 
-               processed_data, invoice_items_data)
+  process_data(input, output, session, file_path, raw_master_spreadsheet_data, 
+               processed_master_spreadsheet_data, invoice_items_data)
   
-  server_driver(input, output, session, file_path, 
-                processed_data, invoice_items_data, current_page)
+  # Function containing backend/server logic
+  main_server_logic(input, output, session, file_path, 
+                processed_master_spreadsheet_data, invoice_items_data, current_page)
   
-  ui_driver(input, output, session, current_page)
+  # Function containing frontend/ui logic
+  main_ui_logic(input, output, session, current_page)
 }
 
 shinyApp(ui = ui, server = server)

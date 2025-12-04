@@ -1,5 +1,5 @@
 
-invoicePage <- function(quote_id, project_id, project_title, project_type, platform) {
+quotePage <- function(quote_id, project_id, project_title, project_type, platform) {
   fluidPage(
     div(class = "content",
         div(class = "center-container",

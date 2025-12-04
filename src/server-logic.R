@@ -15,7 +15,7 @@ process_data <- function(input, output, session, file_path,
                convert_spreadsheet_to_df(file_path(), raw_data, processed_data))
 }
 
-server_driver <- function(input, output, session, file_path,
+main_server_logic <- function(input, output, session, file_path,
                           processed_data, invoice_items_data, current_page) {
   edited_invoice_table <- reactiveVal(NULL)
   
